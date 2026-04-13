@@ -1,0 +1,87 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:../dev.db"
+}
+
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+model User {
+  id           String       @id @default(cuid())
+  username     String       @unique
+  email        String       @unique
+  passwordHash String
+  displayName  String
+  avatarColor  String       @default("#6366f1")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  ownedRooms   Room[]       @relation("RoomOwner")
+  memberships  RoomMember[]
+  snippets     CodeSnippet[]
+  executions   Execution[]
+}
+
+model Room {
+  id          String       @id @default(cuid())
+  name        String
+  description String       @default("")
+  language    String       @default("python")
+  code        String       @default("")
+  isPublic    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  ownerId     String
+  owner       User         @relation("RoomOwner", fields: [ownerId], references: [id])
+  members     RoomMember[]
+  snippets    CodeSnippet[]
+  executions  Execution[]
+}
+
+model RoomMember {
+  id       String   @id @default(cuid())
+  role     String   @default("editor")
+  joinedAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId])
+}
+
+model CodeSnippet {
+  id        String   @id @default(cuid())
+  title     String
+  code      String
+  language  String   @default("python")
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  roomId String?
+  room   Room?  @relation(fields: [roomId], references: [id], onDelete: SetNull)
+}
+
+model Execution {
+  id        String   @id @default(cuid())
+  code      String
+  language  String
+  stdin     String   @default("")
+  stdout    String   @default("")
+  stderr    String   @default("")
+  exitCode  Int      @default(-1)
+  status    String   @default("pending")
+  duration  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  roomId String?
+  room   Room?  @relation(fields: [roomId], references: [id], onDelete: SetNull)
+}

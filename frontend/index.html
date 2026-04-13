@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CodeForge — A real-time collaborative coding and debugging platform for students. Code together, learn together.">
+  <title>CodeForge — Collaborative Coding Platform</title>
+  <link rel="stylesheet" href="/frontend/css/liquid-glass.css">
+  <link rel="stylesheet" href="/frontend/css/animations.css">
+  <style>
+    /* ─── Auth Page Layout ─────────────────────────────────────── */
+    .auth-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: var(--space-6);
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 440px;
+      padding: var(--space-10);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: var(--space-8);
+    }
+
+    .auth-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-2xl);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      margin-bottom: var(--space-5);
+      position: relative;
+    }
+
+    .auth-logo svg {
+      width: 36px;
+      height: 36px;
+      fill: white;
+    }
+
+    .auth-logo::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: calc(var(--radius-2xl) + 3px);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      opacity: 0.3;
+      z-index: -1;
+      animation: logoFloat 4s ease-in-out infinite;
+    }
+
+    .auth-subtitle {
+      font-size: var(--font-base);
+      color: var(--text-secondary);
+      margin-top: var(--space-2);
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    .auth-toggle {
+      text-align: center;
+      margin-top: var(--space-6);
+    }
+
+    .auth-toggle a {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: var(--font-sm);
+      cursor: pointer;
+      transition: color var(--transition-fast);
+    }
+
+    .auth-toggle a:hover {
+      color: #818cf8;
+    }
+
+    .auth-error {
+      padding: var(--space-3) var(--space-4);
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-md);
+      color: #fca5a5;
+      font-size: var(--font-sm);
+      text-align: center;
+      animation: scaleIn 0.3s var(--ease-spring);
+    }
+
+    /* ─── Feature Highlights ───────────────────────────────────── */
+    .features {
+      position: fixed;
+      bottom: var(--space-8);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: var(--space-6);
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-xs);
+      color: var(--text-tertiary);
+    }
+
+    .feature-icon {
+      font-size: 16px;
+    }
+
+    /* ─── Floating Orbs (decorative) ───────────────────────────── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      background: rgba(99, 102, 241, 0.12);
+      top: -100px;
+      right: -100px;
+      animation: orbFloat1 20s ease-in-out infinite alternate;
+    }
+
+    .orb-2 {
+      width: 350px;
+      height: 350px;
+      background: rgba(168, 85, 247, 0.10);
+      bottom: -80px;
+      left: -80px;
+      animation: orbFloat2 25s ease-in-out infinite alternate;
+    }
+
+    .orb-3 {
+      width: 250px;
+      height: 250px;
+      background: rgba(6, 182, 212, 0.08);
+      top: 40%;
+      left: 60%;
+      animation: orbFloat3 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes orbFloat1 {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(-60px, 40px) scale(1.15); }
+    }
+
+    @keyframes orbFloat2 {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(50px, -30px) scale(1.1); }
+    }
+
+    @keyframes orbFloat3 {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(-40px, 50px) scale(0.9); }
+    }
+  </style>
+</head>
+<body>
+  <div class="mesh-background"></div>
+
+  <!-- Decorative orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Auth Page -->
+  <div class="auth-page page-enter" id="authPage">
+    <div class="auth-container glass" id="authContainer">
+      <!-- Logo -->
+      <div class="auth-header">
+        <div class="auth-logo logo-glow">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+          </svg>
+        </div>
+        <h1 class="text-title">CodeForge</h1>
+        <p class="auth-subtitle">Code together, learn together</p>
+      </div>
+
+      <!-- Error message -->
+      <div class="auth-error hidden" id="authError"></div>
+
+      <!-- Login Form -->
+      <form class="auth-form" id="loginForm">
+        <div class="input-group">
+          <label class="input-label" for="loginUsername">Username</label>
+          <input class="input" type="text" id="loginUsername" placeholder="Enter your username" required autocomplete="username">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="loginPassword">Password</label>
+          <input class="input" type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
+        </div>
+
+        <button class="btn btn-primary btn-lg w-full" type="submit" id="loginBtn">
+          Sign In
+        </button>
+
+        <div class="auth-toggle">
+          <span style="color: var(--text-tertiary); font-size: var(--font-sm);">Don't have an account? </span>
+          <a id="showRegister">Create one</a>
+        </div>
+      </form>
+
+      <!-- Register Form (hidden by default) -->
+      <form class="auth-form hidden" id="registerForm">
+        <div class="input-group">
+          <label class="input-label" for="regDisplayName">Display Name</label>
+          <input class="input" type="text" id="regDisplayName" placeholder="How others will see you" required>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="regUsername">Username</label>
+          <input class="input" type="text" id="regUsername" placeholder="Choose a unique username" required autocomplete="username">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="regEmail">Email</label>
+          <input class="input" type="email" id="regEmail" placeholder="your@email.com" required autocomplete="email">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="regPassword">Password</label>
+          <input class="input" type="password" id="regPassword" placeholder="At least 6 characters" required autocomplete="new-password" minlength="6">
+        </div>
+
+        <button class="btn btn-primary btn-lg w-full" type="submit" id="registerBtn">
+          Create Account
+        </button>
+
+        <div class="auth-toggle">
+          <span style="color: var(--text-tertiary); font-size: var(--font-sm);">Already have an account? </span>
+          <a id="showLogin">Sign in</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Feature highlights -->
+  <div class="features">
+    <div class="feature">
+      <span class="feature-icon">⚡</span>
+      <span>Real-time collaboration</span>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🔒</span>
+      <span>Sandboxed execution</span>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🎨</span>
+      <span>Multi-cursor editing</span>
+    </div>
+  </div>
+
+  <script src="/frontend/js/app.js"></script>
+</body>
+</html>

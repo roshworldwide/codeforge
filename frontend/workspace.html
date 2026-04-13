@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CodeForge Workspace — Collaborative code editing with real-time sync, multi-cursor support, and sandboxed execution.">
+  <title>CodeForge — Workspace</title>
+  <link rel="stylesheet" href="/frontend/css/liquid-glass.css">
+  <link rel="stylesheet" href="/frontend/css/animations.css">
+  <link rel="stylesheet" href="/frontend/css/workspace.css">
+</head>
+<body>
+  <div class="mesh-background"></div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Create Room Modal -->
+  <div class="modal-backdrop hidden" id="createRoomBackdrop">
+    <div class="modal glass" id="createRoomModal" style="padding: var(--space-8);">
+      <h2 class="text-heading" style="margin-bottom: var(--space-6);">Create New Room</h2>
+      <form id="createRoomForm" style="display: flex; flex-direction: column; gap: var(--space-4);">
+        <div class="input-group">
+          <label class="input-label" for="newRoomName">Room Name</label>
+          <input class="input" type="text" id="newRoomName" placeholder="e.g., CS101 Lab Session" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="newRoomDesc">Description</label>
+          <input class="input" type="text" id="newRoomDesc" placeholder="Optional description">
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="newRoomLang">Language</label>
+          <select class="input" id="newRoomLang">
+            <option value="python">Python</option>
+            <option value="cpp">C++</option>
+            <option value="javascript">JavaScript</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: var(--space-3); justify-content: flex-end; margin-top: var(--space-4);">
+          <button type="button" class="btn btn-glass" id="cancelCreateRoom">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Workspace Layout -->
+  <div class="workspace page-enter" id="workspace">
+
+    <!-- ─── Top Bar ──────────────────────────────────────────── -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-logo">⟨/⟩ CodeForge</span>
+      </div>
+
+      <div class="topbar-center">
+        <input class="room-name-input" id="roomNameInput" value="Untitled Room" spellcheck="false" maxlength="60">
+        <div class="participants-bar" id="participantsBar">
+          <!-- Dynamic avatar stack -->
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <select class="language-select" id="languageSelect">
+          <option value="python">Python</option>
+          <option value="cpp">C++</option>
+          <option value="javascript">JavaScript</option>
+        </select>
+
+        <button class="run-btn" id="runBtn" title="Run Code (⌘+Enter)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          Run
+        </button>
+
+        <button class="btn btn-glass btn-icon" id="saveSnippetBtn" title="Save Snippet">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+        </button>
+
+        <button class="btn btn-glass btn-icon" id="logoutBtn" title="Logout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ─── Sidebar ──────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <!-- Rooms Section -->
+      <div class="sidebar-section" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+        <div class="sidebar-header">
+          <span class="sidebar-title">Rooms</span>
+          <button class="btn btn-glass btn-sm" id="createRoomBtn" style="padding: 3px 10px; font-size: 11px;">
+            + New
+          </button>
+        </div>
+        <div class="sidebar-content" id="roomList" style="flex: 1; overflow-y: auto;">
+          <div class="shimmer" style="height: 36px; margin-bottom: 4px;"></div>
+          <div class="shimmer" style="height: 36px; margin-bottom: 4px;"></div>
+          <div class="shimmer" style="height: 36px;"></div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Users Section -->
+      <div class="sidebar-section" style="max-height: 220px; overflow: hidden; display: flex; flex-direction: column;">
+        <div class="sidebar-header">
+          <span class="sidebar-title">Online</span>
+          <span class="badge" id="onlineCount">0</span>
+        </div>
+        <div class="sidebar-content" id="userList" style="overflow-y: auto;">
+          <div class="empty-state" style="padding: var(--space-4);">
+            <p style="font-size: var(--font-xs); color: var(--text-tertiary);">Join a room to see participants</p>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Snippets Section -->
+      <div class="sidebar-section" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+        <div class="sidebar-header">
+          <span class="sidebar-title">My Snippets</span>
+        </div>
+        <div class="sidebar-content" id="snippetList" style="flex: 1; overflow-y: auto;">
+          <div class="empty-state" style="padding: var(--space-4);">
+            <p style="font-size: var(--font-xs); color: var(--text-tertiary);">Save code snippets for later</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ─── Main Content ─────────────────────────────────────── -->
+    <main class="main-content">
+      <!-- Editor -->
+      <div class="editor-container" id="editorContainer">
+        <!-- Monaco Editor injected here -->
+      </div>
+
+      <!-- Resize Handle -->
+      <div class="resize-handle" id="resizeHandle"></div>
+
+      <!-- Terminal Panel -->
+      <div class="terminal-panel" id="terminalPanel">
+        <div class="terminal-header" id="terminalHeader">
+          <div class="terminal-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5"></polyline>
+              <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            Output
+            <span class="badge" id="execStatus" style="display:none;"></span>
+          </div>
+          <div class="terminal-actions">
+            <button class="btn btn-glass btn-sm" id="clearTerminal" style="padding: 2px 8px; font-size: 10px;">Clear</button>
+            <button class="btn btn-glass btn-icon btn-sm" id="toggleTerminal" title="Toggle Terminal">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+          <div class="terminal-output" id="terminalOutput">
+            <span class="system">// CodeForge Terminal — Ready to execute code ⚡</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- CDN Dependencies -->
+  <!-- Monaco Editor -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+  <!-- Y.js -->
+  <script src="https://cdn.jsdelivr.net/npm/yjs@13.6.10/dist/yjs.cjs"></script>
+  <!-- y-websocket -->
+  <script src="https://cdn.jsdelivr.net/npm/y-websocket@2.0.3/dist/y-websocket.cjs"></script>
+  <!-- y-monaco -->
+  <script src="https://cdn.jsdelivr.net/npm/y-monaco@0.1.6/dist/y-monaco.cjs"></script>
+
+  <!-- App Scripts -->
+  <script src="/frontend/js/app.js"></script>
+  <script src="/frontend/js/collab.js"></script>
+  <script src="/frontend/js/editor.js"></script>
+  <script src="/frontend/js/terminal.js"></script>
+  <script src="/frontend/js/sidebar.js"></script>
+  <script src="/frontend/js/workspace.js"></script>
+</body>
+</html>

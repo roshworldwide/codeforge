@@ -1,0 +1,306 @@
+/*
+ * ╔══════════════════════════════════════════════════════════════════╗
+ * ║  CodeForge — Micro-Animations & Transitions                     ║
+ * ║  Smooth, Apple-quality motion design                            ║
+ * ╚══════════════════════════════════════════════════════════════════╝
+ */
+
+/* ─── Page Transitions ───────────────────────────────────────────── */
+.page-enter {
+  animation: pageEnter 0.6s var(--ease-out) forwards;
+}
+
+.page-exit {
+  animation: pageExit 0.4s var(--ease-out) forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes pageExit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+    filter: blur(4px);
+  }
+}
+
+
+/* ─── Element Entry Animations ───────────────────────────────────── */
+.fade-in {
+  animation: fadeIn 0.5s var(--ease-out) forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.5s var(--ease-out) forwards;
+}
+
+.slide-down {
+  animation: slideDown 0.4s var(--ease-out) forwards;
+}
+
+.slide-left {
+  animation: slideLeft 0.4s var(--ease-out) forwards;
+}
+
+.scale-in {
+  animation: scaleIn 0.4s var(--ease-spring) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* ─── Staggered Entry (for lists) ────────────────────────────────── */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+
+
+/* ─── Glow Pulse (for active/selected states) ────────────────────── */
+.glow-pulse {
+  animation: glowPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 4px rgba(99, 102, 241, 0.2),
+      0 0 16px rgba(99, 102, 241, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 8px rgba(99, 102, 241, 0.4),
+      0 0 32px rgba(99, 102, 241, 0.2);
+  }
+}
+
+
+/* ─── Typing Indicator ───────────────────────────────────────────── */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.typing-indicator span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+
+/* ─── Shimmer Loading ────────────────────────────────────────────── */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+
+/* ─── Cursor Blink (for remote cursors) ──────────────────────────── */
+.remote-cursor {
+  position: absolute;
+  width: 2px;
+  pointer-events: none;
+  z-index: 100;
+  animation: cursorBlink 1.2s step-end infinite;
+}
+
+.remote-cursor-label {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  border-radius: 3px 3px 3px 0;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: labelFadeIn 0.3s var(--ease-out);
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes labelFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ─── Ripple Effect ──────────────────────────────────────────────── */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(0);
+  animation: rippleEffect 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+
+/* ─── Modal Backdrop ─────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9000;
+  animation: fadeIn 0.25s var(--ease-out);
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9001;
+  animation: modalIn 0.4s var(--ease-spring);
+  max-width: 480px;
+  width: 90%;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+
+/* ─── Logo Animation ─────────────────────────────────────────────── */
+.logo-glow {
+  position: relative;
+}
+
+.logo-glow::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: logoFloat 4s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+
+/* ─── Connection Status Bar ──────────────────────────────────────── */
+.connection-bar {
+  transition: all 0.3s var(--ease-out);
+  overflow: hidden;
+}
+
+.connection-bar.connected {
+  max-height: 0;
+  opacity: 0;
+}
+
+.connection-bar.disconnected {
+  max-height: 40px;
+  opacity: 1;
+}
