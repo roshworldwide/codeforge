@@ -1,13 +1,5 @@
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  CodeForge — App Core                                           ║
- * ║  Authentication, API client, routing, and toast notifications   ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
-
 const API_BASE = window.location.origin;
 
-// ─── State ─────────────────────────────────────────────────────────
 const AppState = {
   token: localStorage.getItem('codeforge_token') || null,
   user: JSON.parse(localStorage.getItem('codeforge_user') || 'null'),
@@ -15,7 +7,6 @@ const AppState = {
 };
 
 
-// ─── API Client ────────────────────────────────────────────────────
 async function api(path, options = {}) {
   const headers = {
     'Content-Type': 'application/json',
@@ -44,7 +35,6 @@ async function api(path, options = {}) {
 }
 
 
-// ─── Toast Notifications ───────────────────────────────────────────
 function showToast(message, type = 'success', duration = 3000) {
   const container = document.getElementById('toastContainer');
   if (!container) return;
@@ -61,7 +51,6 @@ function showToast(message, type = 'success', duration = 3000) {
 }
 
 
-// ─── Auth Logic ────────────────────────────────────────────────────
 function initAuth() {
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
@@ -69,9 +58,8 @@ function initAuth() {
   const showLogin = document.getElementById('showLogin');
   const authError = document.getElementById('authError');
 
-  if (!loginForm) return; // Not on auth page
+  if (!loginForm) return;
 
-  // Toggle between login and register
   if (showRegister) {
     showRegister.addEventListener('click', () => {
       loginForm.classList.add('hidden');
@@ -88,7 +76,6 @@ function initAuth() {
     });
   }
 
-  // Login
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('loginBtn');
@@ -114,7 +101,6 @@ function initAuth() {
     }
   });
 
-  // Register
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('registerBtn');
@@ -179,7 +165,6 @@ function requireAuth() {
 }
 
 
-// ─── Utility ───────────────────────────────────────────────────────
 function getInitials(name) {
   return name
     .split(' ')
@@ -198,11 +183,8 @@ function timeAgo(dateStr) {
 }
 
 
-// ─── Initialize ────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Check if on auth page
   if (document.getElementById('authPage')) {
-    // If already logged in, redirect to workspace
     if (AppState.token && AppState.user) {
       window.location.href = '/workspace';
       return;

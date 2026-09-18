@@ -1,34 +1,21 @@
-/*
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  CodeForge — iOS 26 Liquid Glass Design System                  ║
- * ║  Inspired by Apple's Liquid Glass design language               ║
- * ║  Dynamic translucency, refraction, depth, micro-interactions    ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
-
-/* ─── Google Fonts Import ────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* ─── CSS Custom Properties (Design Tokens) ──────────────────────── */
 :root {
-  /* Typography — Apple System Stack */
   --sf-font: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Helvetica Neue', sans-serif;
   --sf-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
-  --font-xs: 0.6875rem;    /* 11px */
-  --font-sm: 0.8125rem;    /* 13px */
-  --font-base: 0.9375rem;  /* 15px */
-  --font-md: 1.0625rem;    /* 17px */
-  --font-lg: 1.375rem;     /* 22px */
-  --font-xl: 1.75rem;      /* 28px */
-  --font-2xl: 2.25rem;     /* 36px */
-  --font-3xl: 3rem;        /* 48px */
+  --font-xs: 0.6875rem;
+  --font-sm: 0.8125rem;
+  --font-base: 0.9375rem;
+  --font-md: 1.0625rem;
+  --font-lg: 1.375rem;
+  --font-xl: 1.75rem;
+  --font-2xl: 2.25rem;
+  --font-3xl: 3rem;
 
-  /* Letter spacing — Apple kerning */
   --tracking-tight: -0.022em;
   --tracking-normal: -0.01em;
   --tracking-wide: 0.04em;
 
-  /* Glass Material System */
   --glass-bg: rgba(255, 255, 255, 0.06);
   --glass-bg-hover: rgba(255, 255, 255, 0.10);
   --glass-bg-active: rgba(255, 255, 255, 0.14);
@@ -39,7 +26,6 @@
   --glass-blur-sm: blur(20px) saturate(150%);
   --glass-blur-lg: blur(60px) saturate(200%);
 
-  /* Glass Shadows — Multi-layer for depth */
   --glass-shadow: 
     0 0 0 0.5px rgba(255, 255, 255, 0.08),
     0 2px 8px rgba(0, 0, 0, 0.25),
@@ -56,24 +42,21 @@
     0 24px 80px rgba(0, 0, 0, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.10);
 
-  /* Color Palette — Curated tones */
-  --color-primary: #6366f1;       /* Indigo */
+  --color-primary: #6366f1;
   --color-primary-glow: rgba(99, 102, 241, 0.4);
-  --color-secondary: #a855f7;    /* Purple */
-  --color-accent: #06b6d4;       /* Cyan */
+  --color-secondary: #a855f7;
+  --color-accent: #06b6d4;
   --color-accent-glow: rgba(6, 182, 212, 0.3);
-  --color-success: #10b981;      /* Emerald */
-  --color-warning: #f59e0b;      /* Amber */
-  --color-error: #ef4444;        /* Red */
-  --color-info: #3b82f6;         /* Blue */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
 
-  /* Text Colors */
   --text-primary: rgba(255, 255, 255, 0.95);
   --text-secondary: rgba(255, 255, 255, 0.60);
   --text-tertiary: rgba(255, 255, 255, 0.38);
   --text-inverse: rgba(0, 0, 0, 0.85);
 
-  /* Background */
   --bg-primary: #0a0a0f;
   --bg-secondary: #111118;
   --bg-mesh-1: #0f0f1a;
@@ -81,7 +64,6 @@
   --bg-mesh-3: #0f1a2e;
   --bg-mesh-4: #0a1628;
 
-  /* Radii */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -89,7 +71,6 @@
   --radius-2xl: 24px;
   --radius-pill: 100px;
 
-  /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -100,7 +81,6 @@
   --space-10: 40px;
   --space-12: 48px;
 
-  /* Transitions — Apple easing curves */
   --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
@@ -111,7 +91,6 @@
 }
 
 
-/* ─── Reset & Base ───────────────────────────────────────────────── */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -139,7 +118,6 @@ body {
 }
 
 
-/* ─── Dynamic Mesh Background ────────────────────────────────────── */
 .mesh-background {
   position: fixed;
   top: 0;
@@ -165,7 +143,6 @@ body {
   }
 }
 
-/* Subtle noise texture overlay */
 .mesh-background::after {
   content: '';
   position: absolute;
@@ -178,7 +155,6 @@ body {
 }
 
 
-/* ─── Glass Panel Base ───────────────────────────────────────────── */
 .glass {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -195,7 +171,6 @@ body {
     transform var(--transition-spring);
 }
 
-/* Inner light refraction — top highlight */
 .glass::before {
   content: '';
   position: absolute;
@@ -227,7 +202,6 @@ body {
 }
 
 
-/* ─── Glass Card (interactive) ───────────────────────────────────── */
 .glass-card {
   padding: var(--space-6);
   cursor: pointer;
@@ -245,7 +219,6 @@ body {
 }
 
 
-/* ─── Typography ─────────────────────────────────────────────────── */
 .text-hero {
   font-size: var(--font-3xl);
   font-weight: 700;
@@ -291,7 +264,6 @@ body {
 }
 
 
-/* ─── Buttons ────────────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -383,7 +355,6 @@ body {
 }
 
 
-/* ─── Form Inputs ────────────────────────────────────────────────── */
 .input-group {
   display: flex;
   flex-direction: column;
@@ -431,7 +402,6 @@ body {
 }
 
 
-/* ─── Status Indicators ──────────────────────────────────────────── */
 .status-dot {
   width: 8px;
   height: 8px;
@@ -455,7 +425,6 @@ body {
 }
 
 
-/* ─── Badges ─────────────────────────────────────────────────────── */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -488,7 +457,6 @@ body {
 }
 
 
-/* ─── Scrollbar ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -508,7 +476,6 @@ body {
 }
 
 
-/* ─── Divider ────────────────────────────────────────────────────── */
 .divider {
   border: none;
   height: 1px;
@@ -523,7 +490,6 @@ body {
 }
 
 
-/* ─── Avatar ─────────────────────────────────────────────────────── */
 .avatar {
   width: 32px;
   height: 32px;
@@ -555,7 +521,6 @@ body {
 }
 
 
-/* ─── Loading Spinner ────────────────────────────────────────────── */
 .spinner {
   width: 20px;
   height: 20px;
@@ -570,7 +535,6 @@ body {
 }
 
 
-/* ─── Toast / Notification ───────────────────────────────────────── */
 .toast-container {
   position: fixed;
   top: var(--space-6);
@@ -616,7 +580,6 @@ body {
 }
 
 
-/* ─── Utility Classes ────────────────────────────────────────────── */
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
 .items-center { align-items: center; }

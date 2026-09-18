@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="/frontend/css/liquid-glass.css">
   <link rel="stylesheet" href="/frontend/css/animations.css">
   <style>
-    /* ─── Auth Page Layout ─────────────────────────────────────── */
     .auth-page {
       display: flex;
       align-items: center;
@@ -98,7 +97,6 @@
       animation: scaleIn 0.3s var(--ease-spring);
     }
 
-    /* ─── Feature Highlights ───────────────────────────────────── */
     .features {
       position: fixed;
       bottom: var(--space-8);
@@ -120,7 +118,6 @@
       font-size: 16px;
     }
 
-    /* ─── Floating Orbs (decorative) ───────────────────────────── */
     .orb {
       position: fixed;
       border-radius: 50%;
@@ -175,18 +172,14 @@
 <body>
   <div class="mesh-background"></div>
 
-  <!-- Decorative orbs -->
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
 
-  <!-- Toast container -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Auth Page -->
   <div class="auth-page page-enter" id="authPage">
     <div class="auth-container glass" id="authContainer">
-      <!-- Logo -->
       <div class="auth-header">
         <div class="auth-logo logo-glow">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -197,10 +190,8 @@
         <p class="auth-subtitle">Code together, learn together</p>
       </div>
 
-      <!-- Error message -->
       <div class="auth-error hidden" id="authError"></div>
 
-      <!-- Login Form -->
       <form class="auth-form" id="loginForm">
         <div class="input-group">
           <label class="input-label" for="loginUsername">Username</label>
@@ -222,7 +213,6 @@
         </div>
       </form>
 
-      <!-- Register Form (hidden by default) -->
       <form class="auth-form hidden" id="registerForm">
         <div class="input-group">
           <label class="input-label" for="regDisplayName">Display Name</label>
@@ -256,7 +246,6 @@
     </div>
   </div>
 
-  <!-- Feature highlights -->
   <div class="features">
     <div class="feature">
       <span class="feature-icon">⚡</span>

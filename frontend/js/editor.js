@@ -1,11 +1,3 @@
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  CodeForge — Monaco Editor Module                               ║
- * ║  Code editor with Y.js binding and multi-colored cursors        ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
-
-// ─── Editor State ──────────────────────────────────────────────────
 const EditorState = {
   editor: null,
   model: null,
@@ -14,7 +6,6 @@ const EditorState = {
 };
 
 
-// ─── Language Mappings ─────────────────────────────────────────────
 const LANGUAGE_MAP = {
   python: 'python',
   cpp: 'cpp',
@@ -28,12 +19,8 @@ const DEFAULT_CODE = {
 };
 
 
-/**
- * Initialize Monaco Editor in the container.
- */
 function initEditor(containerId, language = 'python') {
   return new Promise((resolve) => {
-    // Configure Monaco loader
     require.config({
       paths: {
         vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs',
@@ -41,7 +28,6 @@ function initEditor(containerId, language = 'python') {
     });
 
     require(['vs/editor/editor.main'], function () {
-      // Define custom dark theme matching Liquid Glass
       monaco.editor.defineTheme('codeforge-dark', {
         base: 'vs-dark',
         inherit: true,
@@ -58,7 +44,7 @@ function initEditor(containerId, language = 'python') {
           { token: 'delimiter', foreground: '9ca3af' },
         ],
         colors: {
-          'editor.background': '#00000000',  // Transparent for glass
+          'editor.background': '#00000000',
           'editor.foreground': '#e4e4e7',
           'editor.lineHighlightBackground': '#ffffff08',
           'editor.selectionBackground': '#6366f140',
@@ -86,7 +72,6 @@ function initEditor(containerId, language = 'python') {
         },
       });
 
-      // Create editor instance
       EditorState.editor = monaco.editor.create(
         document.getElementById(containerId),
         {
@@ -130,7 +115,6 @@ function initEditor(containerId, language = 'python') {
       EditorState.currentLanguage = language;
       EditorState.ready = true;
 
-      // Keyboard shortcuts
       EditorState.editor.addCommand(
         monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
         () => {
@@ -151,9 +135,6 @@ function initEditor(containerId, language = 'python') {
 }
 
 
-/**
- * Bind Y.js to Monaco for collaborative editing.
- */
 function bindEditorToCollab() {
   if (!EditorState.editor || !CollabState.doc) return;
 
@@ -182,9 +163,6 @@ function bindEditorToCollab() {
 }
 
 
-/**
- * Change the editor's programming language.
- */
 function setEditorLanguage(language) {
   if (!EditorState.editor) return;
 
@@ -194,27 +172,18 @@ function setEditorLanguage(language) {
 }
 
 
-/**
- * Get the current code from the editor.
- */
 function getEditorCode() {
   if (!EditorState.editor) return '';
   return EditorState.editor.getValue();
 }
 
 
-/**
- * Set code in the editor.
- */
 function setEditorCode(code) {
   if (!EditorState.editor) return;
   EditorState.editor.setValue(code);
 }
 
 
-/**
- * Focus the editor.
- */
 function focusEditor() {
   if (EditorState.editor) {
     EditorState.editor.focus();

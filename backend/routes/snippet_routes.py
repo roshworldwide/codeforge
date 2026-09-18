@@ -1,11 +1,3 @@
-"""
-CodeForge Snippet Routes
-POST /api/snippets       — Save a code snippet
-GET  /api/snippets       — List user's snippets
-GET  /api/snippets/{id}  — Get snippet by ID
-DELETE /api/snippets/{id} — Delete snippet
-"""
-
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials
 from typing import List

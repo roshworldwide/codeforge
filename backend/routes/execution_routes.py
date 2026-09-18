@@ -1,9 +1,3 @@
-"""
-CodeForge Execution Routes
-POST /api/execute — Run code in sandboxed environment
-GET  /api/executions — List recent executions
-"""
-
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials
 from typing import List
@@ -25,14 +19,12 @@ async def execute(
     payload = decode_token(credentials.credentials)
     db = get_db()
 
-    # Execute code (Docker or subprocess fallback)
     result = await execute_code(
         code=req.code,
         language=req.language,
         stdin=req.stdin,
     )
 
-    # Persist execution record
     execution = await db.execution.create(
         data={
             "code": req.code,

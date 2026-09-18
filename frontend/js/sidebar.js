@@ -1,27 +1,14 @@
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  CodeForge — Sidebar Manager                                    ║
- * ║  Room list, user presence, and snippet management               ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
-
-/**
- * Initialize sidebar functionality.
- */
 function initSidebar() {
-  // Create room button
   const createBtn = document.getElementById('createRoomBtn');
   if (createBtn) {
     createBtn.addEventListener('click', showCreateRoomModal);
   }
 
-  // Cancel create room
   const cancelBtn = document.getElementById('cancelCreateRoom');
   if (cancelBtn) {
     cancelBtn.addEventListener('click', hideCreateRoomModal);
   }
 
-  // Backdrop click to close
   const backdrop = document.getElementById('createRoomBackdrop');
   if (backdrop) {
     backdrop.addEventListener('click', (e) => {
@@ -29,21 +16,16 @@ function initSidebar() {
     });
   }
 
-  // Create room form submit
   const form = document.getElementById('createRoomForm');
   if (form) {
     form.addEventListener('submit', handleCreateRoom);
   }
 
-  // Load initial data
   loadRooms();
   loadSnippets();
 }
 
 
-/**
- * Load and render room list.
- */
 async function loadRooms() {
   const container = document.getElementById('roomList');
   if (!container) return;
@@ -98,37 +80,27 @@ async function loadRooms() {
 }
 
 
-/**
- * Join and open a room.
- */
 async function joinAndOpenRoom(room) {
   try {
-    // Join room on server
     await api(`/api/rooms/${room.id}/join`, { method: 'POST' });
 
-    // Get full room details
     const fullRoom = await api(`/api/rooms/${room.id}`);
     AppState.currentRoom = fullRoom;
 
-    // Update UI
     const roomNameInput = document.getElementById('roomNameInput');
     if (roomNameInput) roomNameInput.value = fullRoom.name;
 
     const langSelect = document.getElementById('languageSelect');
     if (langSelect) langSelect.value = fullRoom.language;
 
-    // Update active state in sidebar
     document.querySelectorAll('.room-item').forEach((el) => {
       el.classList.toggle('active', el.dataset.roomId === room.id);
     });
 
-    // Change editor language
     setEditorLanguage(fullRoom.language);
 
-    // Initialize collaboration
     initCollab(room.id, AppState.user);
 
-    // Wait a moment for Y.js to connect, then bind
     setTimeout(() => {
       bindEditorToCollab();
     }, 500);
@@ -140,9 +112,6 @@ async function joinAndOpenRoom(room) {
 }
 
 
-/**
- * Update the online users list in the sidebar.
- */
 function updateUserList(participants) {
   const container = document.getElementById('userList');
   const countBadge = document.getElementById('onlineCount');
@@ -185,14 +154,10 @@ function updateUserList(participants) {
 
   container.appendChild(list);
 
-  // Update participant avatars in topbar
   updateParticipantBar(participants);
 }
 
 
-/**
- * Update the participant avatar stack in the topbar.
- */
 function updateParticipantBar(participants) {
   const bar = document.getElementById('participantsBar');
   if (!bar) return;
@@ -222,9 +187,6 @@ function updateParticipantBar(participants) {
 }
 
 
-/**
- * Load and render user's saved snippets.
- */
 async function loadSnippets() {
   const container = document.getElementById('snippetList');
   if (!container) return;
@@ -262,14 +224,10 @@ async function loadSnippets() {
       container.appendChild(card);
     });
   } catch (err) {
-    // Silently fail for snippets
   }
 }
 
 
-/**
- * Show create room modal.
- */
 function showCreateRoomModal() {
   const backdrop = document.getElementById('createRoomBackdrop');
   if (backdrop) backdrop.classList.remove('hidden');
@@ -277,9 +235,6 @@ function showCreateRoomModal() {
 }
 
 
-/**
- * Hide create room modal.
- */
 function hideCreateRoomModal() {
   const backdrop = document.getElementById('createRoomBackdrop');
   if (backdrop) backdrop.classList.add('hidden');
@@ -287,9 +242,6 @@ function hideCreateRoomModal() {
 }
 
 
-/**
- * Handle create room form submission.
- */
 async function handleCreateRoom(e) {
   e.preventDefault();
 
@@ -315,9 +267,6 @@ async function handleCreateRoom(e) {
 }
 
 
-/**
- * Save current editor code as a snippet.
- */
 async function saveSnippet() {
   const code = getEditorCode();
   if (!code.trim()) {
@@ -347,9 +296,6 @@ async function saveSnippet() {
 }
 
 
-/**
- * Escape HTML to prevent XSS.
- */
 function escapeHtml(text) {
   const el = document.createElement('span');
   el.textContent = text;

@@ -1,18 +1,3 @@
-"""
-╔══════════════════════════════════════════════════════════════════╗
-║  CodeForge Docker Executor v2.0                                  ║
-║  Secure, ephemeral container execution with auto-build           ║
-║                                                                  ║
-║  Strategy:                                                       ║
-║    1. Docker SDK spins up a hardened container per request       ║
-║    2. Code is injected via shell heredoc → /tmp/code.<ext>      ║
-║    3. Container runs with --rm, --network none, --read-only,    ║
-║       --cap-drop ALL, strict mem/cpu/pid limits                 ║
-║    4. 5-second hard kill for infinite loops                     ║
-║    5. Subprocess fallback only if Docker unavailable            ║
-╚══════════════════════════════════════════════════════════════════╝
-"""
-
 import asyncio
 import base64
 import os
@@ -37,13 +22,11 @@ from backend.config import (
 
 logger = logging.getLogger("codeforge.executor")
 
-# ─── Module-Level State ─────────────────────────────────────────────
 _docker_client = None
 _image_verified = False
 
 
 def _get_docker_client():
-    """Lazy-initialize and cache the Docker client singleton."""
     global _docker_client
     if _docker_client is None:
         try:
@@ -58,10 +41,6 @@ def _get_docker_client():
 
 
 async def _ensure_image_exists():
-    """
-    Check if the sandbox image exists; if not, auto-build it
-    from the Dockerfile. Only checks once per server lifecycle.
-    """
     global _image_verified
     if _image_verified:
         return True
@@ -78,7 +57,6 @@ async def _ensure_image_exists():
     except Exception:
         logger.info(f"🔧 Sandbox image '{DOCKER_IMAGE}' not found — building...")
 
-    # Auto-build from Dockerfile
     try:
         dockerfile_dir = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
@@ -89,7 +67,6 @@ async def _ensure_image_exists():
             logger.error(f"Dockerfile directory not found: {dockerfile_dir}")
             return False
 
-        # Build in a thread to avoid blocking the event loop
         loop = asyncio.get_event_loop()
         image, build_logs = await loop.run_in_executor(
             None,
@@ -108,14 +85,7 @@ async def _ensure_image_exists():
         return False
 
 
-# ─── Public API ──────────────────────────────────────────────────────
-
 async def execute_code(code: str, language: str, stdin: str = "") -> Dict:
-    """
-    Execute user code securely and return results.
-    Docker-first with subprocess fallback.
-    """
-    # ── Input validation ──
     if len(code) > MAX_CODE_LENGTH:
         return _error_result(
             f"Code exceeds maximum length of {MAX_CODE_LENGTH:,} characters"
@@ -127,7 +97,6 @@ async def execute_code(code: str, language: str, stdin: str = "") -> Dict:
             f"Supported: {', '.join(SUPPORTED_LANGUAGES.keys())}"
         )
 
-    # ── Route to execution engine ──
     if DOCKER_ENABLED:
         image_ready = await _ensure_image_exists()
         if image_ready:
@@ -138,19 +107,7 @@ async def execute_code(code: str, language: str, stdin: str = "") -> Dict:
     return await _execute_subprocess(code, language, stdin)
 
 
-# ─── Docker Execution ───────────────────────────────────────────────
-
 async def _execute_docker(code: str, language: str, stdin: str = "") -> Dict:
-    """
-    Execute code in an ephemeral Docker container with strict security.
-
-    Container lifecycle:
-      1. Create container with hardened security profile
-      2. Inject code via base64 to avoid shell escaping issues
-      3. Wait for exit or kill after timeout
-      4. Capture stdout/stderr
-      5. Container auto-removed via `--rm` equivalent
-    """
     client = _get_docker_client()
     if not client:
         return await _execute_subprocess(code, language, stdin)
@@ -162,17 +119,12 @@ async def _execute_docker(code: str, language: str, stdin: str = "") -> Dict:
     try:
         filename = f"code{lang_config['extension']}"
 
-        # Encode code as base64 to safely pass through shell without escaping issues
         code_b64 = base64.b64encode(code.encode("utf-8")).decode("ascii")
 
-        # Build the execution command, handling both simple and compound (sh -c) commands
         cmd_parts = lang_config["command"]
         if cmd_parts[0] == "sh" and cmd_parts[1] == "-c":
-            # Compound command (e.g., C++: "sh -c 'g++ -o /tmp/a.out {file} && /tmp/a.out'")
-            # Extract the shell script and do replacement directly
             exec_cmd = cmd_parts[2].replace("{file}", f"/tmp/{filename}")
         else:
-            # Simple command (e.g., Python: "python3 {file}")
             exec_cmd = " ".join(
                 part.replace("{file}", f"/tmp/{filename}")
                 for part in cmd_parts
@@ -182,20 +134,19 @@ async def _execute_docker(code: str, language: str, stdin: str = "") -> Dict:
             f"echo '{code_b64}' | base64 -d > /tmp/{filename} && {exec_cmd}"
         )
 
-        # Run container in a thread pool to avoid blocking asyncio
         loop = asyncio.get_event_loop()
         container = await loop.run_in_executor(
             None,
             lambda: client.containers.run(
                 image=DOCKER_IMAGE,
                 command=["sh", "-c", shell_script],
-                detach=True,              # Don't block — we manage the wait
-                remove=False,             # We remove manually after capturing logs
-                network_disabled=True,    # No internet access
+                detach=True,
+                remove=False,
+                network_disabled=True,
                 mem_limit=DOCKER_MEMORY_LIMIT,
-                nano_cpus=int(DOCKER_CPU_LIMIT * 1e9),  # 0.5 CPU = 500_000_000 ns
+                nano_cpus=int(DOCKER_CPU_LIMIT * 1e9),
                 pids_limit=DOCKER_PIDS_LIMIT,
-                read_only=True,           # Root FS is read-only
+                read_only=True,
                 tmpfs={"/tmp": "size=64M,exec"},
                 security_opt=["no-new-privileges"],
                 cap_drop=["ALL"],
@@ -203,19 +154,17 @@ async def _execute_docker(code: str, language: str, stdin: str = "") -> Dict:
             ),
         )
 
-        # Wait for container to finish with strict timeout
         try:
             result = await asyncio.wait_for(
                 loop.run_in_executor(
                     None,
                     lambda: container.wait(timeout=DOCKER_TIMEOUT),
                 ),
-                timeout=DOCKER_TIMEOUT + 2,  # asyncio grace period
+                timeout=DOCKER_TIMEOUT + 2,
             )
 
             exit_code = result.get("StatusCode", -1)
 
-            # Capture logs
             stdout = await loop.run_in_executor(
                 None,
                 lambda: container.logs(stdout=True, stderr=False)
@@ -229,7 +178,6 @@ async def _execute_docker(code: str, language: str, stdin: str = "") -> Dict:
 
             duration = int((time.time() - start_time) * 1000)
 
-            # Check for OOM kill
             if exit_code == 137:
                 return {
                     "stdout": stdout[:MAX_OUTPUT_LENGTH],
@@ -250,7 +198,6 @@ async def _execute_docker(code: str, language: str, stdin: str = "") -> Dict:
             }
 
         except (asyncio.TimeoutError, Exception) as timeout_err:
-            # Kill the runaway container
             try:
                 await loop.run_in_executor(None, lambda: container.kill())
             except Exception:
@@ -274,7 +221,6 @@ async def _execute_docker(code: str, language: str, stdin: str = "") -> Dict:
     except Exception as e:
         logger.error(f"Docker execution error: {e}")
         duration = int((time.time() - start_time) * 1000)
-        # Graceful fallback to subprocess on Docker API errors
         if "not found" in str(e).lower():
             return _error_result(
                 f"Docker image '{DOCKER_IMAGE}' not found. Please run: "
@@ -283,7 +229,6 @@ async def _execute_docker(code: str, language: str, stdin: str = "") -> Dict:
         return await _execute_subprocess(code, language, stdin)
 
     finally:
-        # Always clean up the container (ephemeral / --rm behavior)
         if container:
             try:
                 loop = asyncio.get_event_loop()
@@ -295,12 +240,7 @@ async def _execute_docker(code: str, language: str, stdin: str = "") -> Dict:
                 pass
 
 
-# ─── Subprocess Fallback ─────────────────────────────────────────────
-
 async def _execute_subprocess(code: str, language: str, stdin: str = "") -> Dict:
-    """
-    Fallback execution using subprocess when Docker is unavailable.
-    """
     lang_config = SUPPORTED_LANGUAGES[language]
     start_time = time.time()
 
@@ -375,10 +315,7 @@ async def _execute_subprocess(code: str, language: str, stdin: str = "") -> Dict
             pass
 
 
-# ─── Helpers ─────────────────────────────────────────────────────────
-
 def _error_result(message: str, duration: int = 0) -> Dict:
-    """Build a standardized error result."""
     return {
         "stdout": "",
         "stderr": message,
@@ -390,17 +327,11 @@ def _error_result(message: str, duration: int = 0) -> Dict:
 
 
 def _format_stderr(stderr: str, language: str) -> str:
-    """
-    Clean up stderr for student-friendly display.
-    Strips noisy container paths and keeps relevant error info.
-    """
     if not stderr:
         return ""
 
-    # Truncate
     stderr = stderr[:MAX_OUTPUT_LENGTH]
 
-    # Clean up temp file paths — replace container paths with cleaner names
     stderr = stderr.replace("/tmp/code.py", "code.py")
     stderr = stderr.replace("/tmp/code.cpp", "code.cpp")
     stderr = stderr.replace("/tmp/code.js", "code.js")

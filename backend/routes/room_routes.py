@@ -1,13 +1,3 @@
-"""
-CodeForge Room Routes
-POST   /api/rooms         — Create room
-GET    /api/rooms         — List public rooms
-GET    /api/rooms/{id}    — Get room details
-PUT    /api/rooms/{id}    — Update room
-DELETE /api/rooms/{id}    — Delete room
-POST   /api/rooms/{id}/join — Join room
-"""
-
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials
 from typing import List
@@ -45,7 +35,6 @@ async def create_room(
         },
     )
 
-    # Auto-add owner as a member
     await db.roommember.create(
         data={
             "userId": payload["sub"],
@@ -76,7 +65,6 @@ async def list_rooms(
     db = get_db()
     user_id = payload["sub"]
 
-    # Get public rooms and rooms user belongs to
     rooms = await db.room.find_many(
         where={
             "OR": [
@@ -242,7 +230,6 @@ async def join_room(
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
 
-    # Check if already a member
     existing = await db.roommember.find_first(
         where={"userId": payload["sub"], "roomId": room_id}
     )

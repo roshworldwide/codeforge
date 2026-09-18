@@ -1,23 +1,4 @@
 #!/usr/bin/env python3
-"""
-╔══════════════════════════════════════════════════════════════════════╗
-║                                                                      ║
-║   ██████╗ ██████╗ ██████╗ ███████╗███████╗ ██████╗ ██████╗  ██████╗  ║
-║  ██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝ ║
-║  ██║     ██║   ██║██║  ██║█████╗  █████╗  ██║   ██║██████╔╝██║  ███╗║
-║  ██║     ██║   ██║██║  ██║██╔══╝  ██╔══╝  ██║   ██║██╔══██╗██║   ██║║
-║  ╚██████╗╚██████╔╝██████╔╝███████╗██║     ╚██████╔╝██║  ██║╚██████╔╝║
-║   ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝║
-║                                                                      ║
-║  Collaborative Coding & Debugging Platform — LIVE DEMO LAUNCHER      ║
-║                                                                      ║
-╚══════════════════════════════════════════════════════════════════════╝
-
-Usage:
-    python demo_launcher.py              # Launch with ngrok tunnel
-    python demo_launcher.py --local      # Launch without ngrok (localhost only)
-    python demo_launcher.py --port 9000  # Custom port
-"""
 
 import os
 import sys
@@ -29,7 +10,6 @@ import threading
 from pathlib import Path
 
 
-# ─── ANSI Colors ────────────────────────────────────────────────────
 class C:
     RESET   = "\033[0m"
     BOLD    = "\033[1m"
@@ -84,14 +64,10 @@ def big_url_box(url, label="SHARE THIS URL"):
 """)
 
 
-# ─── Preflight Checks ──────────────────────────────────────────────
-
 def check_venv():
-    """Ensure we're running inside the virtual environment."""
     venv_path = Path(__file__).parent / "venv"
     if venv_path.exists() and not hasattr(sys, "real_prefix") and not (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix):
         status("⚠️", "Virtual environment not activated! Activating...", C.YELLOW)
-        # Can't activate in-process — guide the user
         activate_path = venv_path / "bin" / "activate"
         print(f"\n  {C.YELLOW}Run this first:{C.RESET}")
         print(f"  {C.CYAN}source {activate_path}{C.RESET}\n")
@@ -99,7 +75,6 @@ def check_venv():
 
 
 def check_database():
-    """Ensure the SQLite database exists."""
     db_path = Path(__file__).parent / "dev.db"
     if not db_path.exists():
         status("🔧", "Database not found — running Prisma push...", C.YELLOW)
@@ -115,7 +90,6 @@ def check_database():
 
 
 def check_docker():
-    """Check if Docker is available for sandboxed execution."""
     try:
         result = subprocess.run(
             ["docker", "version", "--format", "{{.Server.Version}}"],
@@ -127,7 +101,6 @@ def check_docker():
     except (FileNotFoundError, subprocess.TimeoutExpired):
         pass
 
-    # Try the full path on macOS
     try:
         result = subprocess.run(
             ["/usr/local/bin/docker", "version", "--format", "{{.Server.Version}}"],
@@ -143,10 +116,7 @@ def check_docker():
     return False
 
 
-# ─── Server Process ────────────────────────────────────────────────
-
 def start_server(port):
-    """Start the FastAPI server as a subprocess."""
     env = os.environ.copy()
     env["DOCKER_ENABLED"] = "true"
 
@@ -167,13 +137,11 @@ def start_server(port):
 
 
 def stream_server_output(process):
-    """Stream server output in a background thread with dim formatting."""
     def _stream():
         try:
             for line in iter(process.stdout.readline, b""):
                 decoded = line.decode("utf-8", errors="replace").rstrip()
                 if decoded:
-                    # Dim the uvicorn output so it doesn't overwhelm the demo URL
                     print(f"  {C.DIM}│ {decoded}{C.RESET}")
         except (ValueError, OSError):
             pass
@@ -183,19 +151,14 @@ def stream_server_output(process):
     return thread
 
 
-# ─── Ngrok Tunnel ───────────────────────────────────────────────────
-
 def start_ngrok(port):
-    """Open an ngrok tunnel to the specified port."""
     try:
         from pyngrok import ngrok, conf
 
         status("🌐", "Opening ngrok tunnel...", C.CYAN)
 
-        # Configure ngrok
         pyngrok_config = conf.get_default()
 
-        # Open HTTP tunnel
         tunnel = ngrok.connect(port, "http", bind_tls=True)
         public_url = tunnel.public_url
 
@@ -212,8 +175,6 @@ def start_ngrok(port):
         sys.exit(1)
 
 
-# ─── Main ───────────────────────────────────────────────────────────
-
 def main():
     parser = argparse.ArgumentParser(description="CodeForge Live Demo Launcher")
     parser.add_argument("--port", type=int, default=8000, help="Server port (default: 8000)")
@@ -222,7 +183,6 @@ def main():
 
     banner()
 
-    # ── Preflight ──
     status("🔍", "Running preflight checks...", C.BLUE)
     section_break()
     check_venv()
@@ -230,11 +190,9 @@ def main():
     has_docker = check_docker()
     section_break()
 
-    # ── Start Server ──
     status("🚀", f"Starting FastAPI server on port {args.port}...", C.BLUE)
     server_proc = start_server(args.port)
 
-    # Wait for server to boot
     time.sleep(3)
 
     if server_proc.poll() is not None:
@@ -244,14 +202,12 @@ def main():
     status("✅", f"Server running on http://0.0.0.0:{args.port}", C.GREEN)
     section_break()
 
-    # ── Ngrok Tunnel ──
     tunnel = None
     if not args.local:
         tunnel, public_url = start_ngrok(args.port)
         status("✅", "Ngrok tunnel established", C.GREEN)
         section_break()
 
-        # ── THE BIG MOMENT ──
         big_url_box(public_url, "🚀 LIVE DEMO ACTIVE — SHARE THIS URL WITH THE CLASS")
 
         print(f"  {C.BOLD}{C.WHITE}Quick Info:{C.RESET}")
@@ -273,11 +229,9 @@ def main():
     else:
         big_url_box(f"http://localhost:{args.port}", "🖥  LOCAL DEMO ACTIVE")
 
-    # ── Stream server logs ──
     print(f"  {C.DIM}Server logs:{C.RESET}")
     stream_server_output(server_proc)
 
-    # ── Graceful shutdown ──
     def shutdown(signum=None, frame=None):
         print(f"\n\n  {C.YELLOW}🛑 Shutting down CodeForge demo...{C.RESET}")
 
@@ -303,7 +257,6 @@ def main():
     signal.signal(signal.SIGINT, shutdown)
     signal.signal(signal.SIGTERM, shutdown)
 
-    # Keep alive
     try:
         while True:
             if server_proc.poll() is not None:

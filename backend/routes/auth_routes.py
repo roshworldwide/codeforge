@@ -1,10 +1,3 @@
-"""
-CodeForge Auth Routes
-POST /api/auth/register — Create new account
-POST /api/auth/login    — Authenticate and get JWT
-GET  /api/auth/me       — Get current user profile
-"""
-
 import random
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials
@@ -21,7 +14,6 @@ from backend.database import get_db
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-# ─── Cursor Color Palette (vibrant, distinguishable) ───────────────
 AVATAR_COLORS = [
     "#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899",
     "#f43f5e", "#ef4444", "#f97316", "#eab308", "#22c55e",
@@ -34,7 +26,6 @@ async def register(req: RegisterRequest):
     """Register a new user account."""
     db = get_db()
 
-    # Check for existing username
     existing = await db.user.find_first(
         where={"username": req.username}
     )
@@ -44,7 +35,6 @@ async def register(req: RegisterRequest):
             detail="Username already taken",
         )
 
-    # Check for existing email
     existing_email = await db.user.find_first(
         where={"email": req.email}
     )
@@ -54,7 +44,6 @@ async def register(req: RegisterRequest):
             detail="Email already registered",
         )
 
-    # Create user
     user = await db.user.create(
         data={
             "username": req.username,

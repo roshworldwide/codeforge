@@ -1,11 +1,3 @@
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  CodeForge — Collaboration Manager                              ║
- * ║  Y.js CRDT document sync + awareness (cursors/presence)         ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
-
-// ─── Collaboration State ───────────────────────────────────────────
 const CollabState = {
   doc: null,
   provider: null,
@@ -19,17 +11,11 @@ const CollabState = {
 };
 
 
-/**
- * Initialize Y.js collaboration for a room.
- * Sets up the CRDT document, WebSocket provider, and awareness protocol.
- */
 function initCollab(roomId, user) {
-  // Clean up existing connection
   destroyCollab();
 
   CollabState.roomId = roomId;
 
-  // Create Y.js document
   const Y = window.Y || window.yjs;
   if (!Y) {
     console.warn('Y.js not loaded — running in solo mode');
@@ -38,7 +24,6 @@ function initCollab(roomId, user) {
 
   CollabState.doc = new Y.Doc();
 
-  // Setup WebSocket provider
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${wsProtocol}//${window.location.host}`;
 
@@ -62,17 +47,14 @@ function initCollab(roomId, user) {
       }
     );
 
-    // Awareness setup
     CollabState.awareness = CollabState.provider.awareness;
 
-    // Set local user state
     CollabState.awareness.setLocalStateField('user', {
       name: user.displayName,
       color: user.avatarColor,
       userId: user.id,
     });
 
-    // Track connection status
     CollabState.provider.on('status', ({ status }) => {
       CollabState.connected = status === 'connected';
       if (CollabState.onConnectionChange) {
@@ -80,7 +62,6 @@ function initCollab(roomId, user) {
       }
     });
 
-    // Track participants via awareness
     CollabState.awareness.on('change', () => {
       updateParticipants();
     });
@@ -95,9 +76,6 @@ function initCollab(roomId, user) {
 }
 
 
-/**
- * Update the participants map from awareness states.
- */
 function updateParticipants() {
   if (!CollabState.awareness) return;
 
@@ -120,9 +98,6 @@ function updateParticipants() {
 }
 
 
-/**
- * Get the Y.Text type for the editor.
- */
 function getSharedText() {
   if (!CollabState.doc) return null;
 
@@ -133,9 +108,6 @@ function getSharedText() {
 }
 
 
-/**
- * Clean up collaboration resources.
- */
 function destroyCollab() {
   if (CollabState.binding) {
     CollabState.binding.destroy();

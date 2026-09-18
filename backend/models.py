@@ -1,14 +1,8 @@
-"""
-CodeForge Pydantic Models
-Request/Response schemas for all API endpoints.
-"""
-
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr, Field
 
 
-# ─── Auth Models ────────────────────────────────────────────────────
 class RegisterRequest(BaseModel):
     username: str = Field(..., min_length=3, max_length=30, pattern=r"^[a-zA-Z0-9_]+$")
     email: str = Field(..., min_length=5, max_length=100)
@@ -35,7 +29,6 @@ class UserResponse(BaseModel):
     createdAt: datetime
 
 
-# ─── Room Models ────────────────────────────────────────────────────
 class CreateRoomRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     description: str = Field("", max_length=500)
@@ -75,7 +68,6 @@ class MemberResponse(BaseModel):
     user: UserResponse
 
 
-# ─── Snippet Models ─────────────────────────────────────────────────
 class CreateSnippetRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
     code: str = Field(..., max_length=50000)
@@ -93,7 +85,6 @@ class SnippetResponse(BaseModel):
     roomId: Optional[str] = None
 
 
-# ─── Execution Models ──────────────────────────────────────────────
 class ExecuteRequest(BaseModel):
     code: str = Field(..., max_length=50000)
     language: str = Field("python")

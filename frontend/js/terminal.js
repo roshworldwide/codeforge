@@ -1,30 +1,17 @@
-/**
- * ╔══════════════════════════════════════════════════════════════════╗
- * ║  CodeForge — Terminal Panel                                     ║
- * ║  Displays code execution output with status indicators          ║
- * ╚══════════════════════════════════════════════════════════════════╝
- */
-
-// ─── Terminal State ────────────────────────────────────────────────
 const TerminalState = {
   collapsed: false,
   running: false,
 };
 
 
-/**
- * Initialize the terminal panel.
- */
 function initTerminal() {
   const toggleBtn = document.getElementById('toggleTerminal');
   const terminalHeader = document.getElementById('terminalHeader');
   const clearBtn = document.getElementById('clearTerminal');
   const panel = document.getElementById('terminalPanel');
 
-  // Toggle collapse
   if (terminalHeader) {
     terminalHeader.addEventListener('click', (e) => {
-      // Don't toggle when clicking action buttons
       if (e.target.closest('.terminal-actions')) return;
       toggleTerminal();
     });
@@ -37,7 +24,6 @@ function initTerminal() {
     });
   }
 
-  // Clear terminal
   if (clearBtn) {
     clearBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -45,14 +31,10 @@ function initTerminal() {
     });
   }
 
-  // Resize handle
   initResizeHandle();
 }
 
 
-/**
- * Toggle terminal panel collapse.
- */
 function toggleTerminal() {
   const panel = document.getElementById('terminalPanel');
   if (!panel) return;
@@ -60,22 +42,17 @@ function toggleTerminal() {
   TerminalState.collapsed = !TerminalState.collapsed;
   panel.classList.toggle('collapsed', TerminalState.collapsed);
 
-  // Rotate chevron icon
   const icon = document.querySelector('#toggleTerminal svg');
   if (icon) {
     icon.style.transform = TerminalState.collapsed ? 'rotate(180deg)' : '';
   }
 
-  // Trigger editor layout update
   if (EditorState.editor) {
     setTimeout(() => EditorState.editor.layout(), 350);
   }
 }
 
 
-/**
- * Write output to the terminal.
- */
 function writeToTerminal(text, type = 'stdout') {
   const output = document.getElementById('terminalOutput');
   if (!output) return;
@@ -85,22 +62,17 @@ function writeToTerminal(text, type = 'stdout') {
   line.textContent = text;
   output.appendChild(line);
 
-  // Auto-scroll to bottom
   const body = document.getElementById('terminalBody');
   if (body) {
     body.scrollTop = body.scrollHeight;
   }
 
-  // Expand terminal if collapsed and there's output
   if (TerminalState.collapsed && text.trim()) {
     toggleTerminal();
   }
 }
 
 
-/**
- * Clear terminal output.
- */
 function clearTerminalOutput() {
   const output = document.getElementById('terminalOutput');
   if (output) {
@@ -109,9 +81,6 @@ function clearTerminalOutput() {
 }
 
 
-/**
- * Execute code and display results in terminal.
- */
 async function executeCode() {
   if (TerminalState.running) return;
 
@@ -124,7 +93,6 @@ async function executeCode() {
   const runBtn = document.getElementById('runBtn');
   const execStatus = document.getElementById('execStatus');
 
-  // Update UI state
   TerminalState.running = true;
   if (runBtn) {
     runBtn.classList.add('running');
@@ -134,14 +102,12 @@ async function executeCode() {
     `;
   }
 
-  // Clear and show executing message
   const output = document.getElementById('terminalOutput');
   if (output) {
     output.innerHTML = '';
   }
   writeToTerminal(`▶ Executing ${EditorState.currentLanguage}...\n\n`, 'system');
 
-  // Show status badge
   if (execStatus) {
     execStatus.style.display = '';
     execStatus.className = 'badge badge-warning';
@@ -159,17 +125,14 @@ async function executeCode() {
       },
     });
 
-    // Display stdout
     if (result.stdout) {
       writeToTerminal(result.stdout, 'stdout');
     }
 
-    // Display stderr
     if (result.stderr) {
       writeToTerminal(result.stderr + '\n', 'stderr');
     }
 
-    // Display execution info
     const statusText = result.status === 'success' ? '✓' : '✗';
     const statusClass = result.status === 'success' ? 'success' : 'stderr';
     writeToTerminal(
@@ -177,7 +140,6 @@ async function executeCode() {
       statusClass
     );
 
-    // Update status badge
     if (execStatus) {
       if (result.status === 'success') {
         execStatus.className = 'badge badge-success';
@@ -212,9 +174,6 @@ async function executeCode() {
 }
 
 
-/**
- * Initialize terminal resize handle.
- */
 function initResizeHandle() {
   const handle = document.getElementById('resizeHandle');
   const panel = document.getElementById('terminalPanel');

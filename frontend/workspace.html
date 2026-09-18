@@ -12,10 +12,8 @@
 <body>
   <div class="mesh-background"></div>
 
-  <!-- Toast container -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Create Room Modal -->
   <div class="modal-backdrop hidden" id="createRoomBackdrop">
     <div class="modal glass" id="createRoomModal" style="padding: var(--space-8);">
       <h2 class="text-heading" style="margin-bottom: var(--space-6);">Create New Room</h2>
@@ -44,10 +42,8 @@
     </div>
   </div>
 
-  <!-- Workspace Layout -->
   <div class="workspace page-enter" id="workspace">
 
-    <!-- ─── Top Bar ──────────────────────────────────────────── -->
     <header class="topbar">
       <div class="topbar-left">
         <span class="topbar-logo">⟨/⟩ CodeForge</span>
@@ -56,7 +52,6 @@
       <div class="topbar-center">
         <input class="room-name-input" id="roomNameInput" value="Untitled Room" spellcheck="false" maxlength="60">
         <div class="participants-bar" id="participantsBar">
-          <!-- Dynamic avatar stack -->
         </div>
       </div>
 
@@ -92,9 +87,7 @@
       </div>
     </header>
 
-    <!-- ─── Sidebar ──────────────────────────────────────────── -->
     <aside class="sidebar">
-      <!-- Rooms Section -->
       <div class="sidebar-section" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
         <div class="sidebar-header">
           <span class="sidebar-title">Rooms</span>
@@ -111,7 +104,6 @@
 
       <hr class="divider">
 
-      <!-- Users Section -->
       <div class="sidebar-section" style="max-height: 220px; overflow: hidden; display: flex; flex-direction: column;">
         <div class="sidebar-header">
           <span class="sidebar-title">Online</span>
@@ -126,7 +118,6 @@
 
       <hr class="divider">
 
-      <!-- Snippets Section -->
       <div class="sidebar-section" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
         <div class="sidebar-header">
           <span class="sidebar-title">My Snippets</span>
@@ -139,17 +130,12 @@
       </div>
     </aside>
 
-    <!-- ─── Main Content ─────────────────────────────────────── -->
     <main class="main-content">
-      <!-- Editor -->
       <div class="editor-container" id="editorContainer">
-        <!-- Monaco Editor injected here -->
       </div>
 
-      <!-- Resize Handle -->
       <div class="resize-handle" id="resizeHandle"></div>
 
-      <!-- Terminal Panel -->
       <div class="terminal-panel" id="terminalPanel">
         <div class="terminal-header" id="terminalHeader">
           <div class="terminal-title">
@@ -178,17 +164,11 @@
     </main>
   </div>
 
-  <!-- CDN Dependencies -->
-  <!-- Monaco Editor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
-  <!-- Y.js -->
   <script src="https://cdn.jsdelivr.net/npm/yjs@13.6.10/dist/yjs.cjs"></script>
-  <!-- y-websocket -->
   <script src="https://cdn.jsdelivr.net/npm/y-websocket@2.0.3/dist/y-websocket.cjs"></script>
-  <!-- y-monaco -->
   <script src="https://cdn.jsdelivr.net/npm/y-monaco@0.1.6/dist/y-monaco.cjs"></script>
 
-  <!-- App Scripts -->
   <script src="/frontend/js/app.js"></script>
   <script src="/frontend/js/collab.js"></script>
   <script src="/frontend/js/editor.js"></script>
